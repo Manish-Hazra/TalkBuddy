@@ -92,12 +92,26 @@ chatFormG.addEventListener('submit', (e) => {
   e.target.elements.msg.value = '';
   e.target.elements.msg.focus();
 });
-
-chatFormI.addEventListener('submit', (e) => {
+const convertBase64=(file)=>{
+  return new Promise((resolve,reject)=>{
+    const fileReader=new FileReader();
+    fileReader.readAsDataURL(file);
+    fileReader.onload=()=>{
+      resolve(fileReader.result);
+    }
+    
+    fileReader.onerror=(err)=>{
+      reject(err);
+    }
+  })
+}
+chatFormI.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   // Get message text
-  let msg = e.target.elements.image;
+  let msg = e.target.elements.image.files[0];
+  const base64 = await convertBase64(msg)
+  console.log(base64.toString())
 
 
   if (!msg) {
@@ -105,7 +119,7 @@ chatFormI.addEventListener('submit', (e) => {
   }
 
   // Emit message to server
-  socket.emit('chatMessage', msg);
+  socket.emit('chatMessageI', base64.toString());
 
 });
 
@@ -148,9 +162,10 @@ function outputMessageI(message) {
   p.innerText = message.username;
   p.innerHTML += `<span>${message.time}</span>`;
   div.appendChild(p);
-  const para = document.createElement('image');
+  const para = document.createElement('img');
   para.classList.add('image');
-  para.src = message.value;
+  para.setAttribute("src", message.text)
+  console.log(message.text)
   div.appendChild(para);
   document.querySelector('.chat-messages').appendChild(div);
 }

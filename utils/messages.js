@@ -8,4 +8,12 @@ function formatMessage(username, text) {
   };
 }
 
-module.exports = formatMessage;
+function formatMessageI(username, file) {
+  return {
+    username,
+    file,
+    time: moment().format('h:mm a')
+  };
+}
+
+module.exports = {formatMessage, formatMessageI};
