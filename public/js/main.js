@@ -165,7 +165,6 @@ function outputMessageI(message) {
   const para = document.createElement('img');
   para.classList.add('image');
   para.setAttribute("src", message.text)
-  console.log(message.text)
   div.appendChild(para);
   document.querySelector('.chat-messages').appendChild(div);
 }
