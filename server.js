@@ -82,6 +82,12 @@ io.on('connection', socket => {
     io.to(user.room).emit('messageI', formatMessage(user.username, msg));
   });
 
+  socket.on('chatMessageGI', msg => {
+    const user = getCurrentUserG(socket.id);
+
+    io.to(user.room).emit('messageGI', formatMessage(user.username, msg));
+  });
+
   // Runs when client disconnects
   socket.on('disconnect', () => {
     const user = userLeave(socket.id);

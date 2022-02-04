@@ -52,6 +52,14 @@ socket.on('messageG', (message) => {
   chatMessagesG.scrollTop = chatMessagesG.scrollHeight;
 });
 
+socket.on('messageGI', (message) => {
+  console.log(message);
+  outputMessageGI(message);
+
+  // Scroll down
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
 // Message submit
 chatForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -123,6 +131,24 @@ chatFormI.addEventListener('submit', async (e) => {
 
 });
 
+chatFormGI.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  // Get message text
+  let msg = e.target.elements.image.files[0];
+  const base64 = await convertBase64(msg)
+  console.log(base64.toString())
+
+
+  if (!msg) {
+    return false;
+  }
+
+  // Emit message to server
+  socket.emit('chatMessageGI', base64.toString());
+
+});
+
 
 // Output message to DOM
 function outputMessage(message) {
@@ -167,6 +193,21 @@ function outputMessageI(message) {
   para.setAttribute("src", message.text)
   div.appendChild(para);
   document.querySelector('.chat-messages').appendChild(div);
+}
+
+function outputMessageGI(message) {
+  const div = document.createElement('div');
+  div.classList.add('message');
+  const p = document.createElement('p');
+  p.classList.add('meta');
+  p.innerText = message.username;
+  p.innerHTML += `<span>${message.time}</span>`;
+  div.appendChild(p);
+  const para = document.createElement('img');
+  para.classList.add('image');
+  para.setAttribute("src", message.text)
+  div.appendChild(para);
+  document.querySelector('.chat-messages-g').appendChild(div);
 }
 // Add room name to DOM
 function outputRoomName(room) {
