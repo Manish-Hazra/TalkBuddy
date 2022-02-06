@@ -28,6 +28,10 @@ function getCurrentUserG(id) {
   return usersG.find(user => user.id === id);
 }
 
+function getCurrentUserP(un) {
+  return usersG.find(user => user.username === un);
+}
+
 // User leaves chat
 function userLeave(id) {
   const index = users.findIndex(user => user.id === id);
@@ -59,6 +63,7 @@ module.exports = {
   userJoinG,
   getCurrentUser,
   getCurrentUserG,
+  getCurrentUserP,
   userLeave,
   userLeaveG,
   getRoomUsers,

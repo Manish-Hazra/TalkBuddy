@@ -9,18 +9,20 @@ const {
   userJoinG,
   getCurrentUser,
   getCurrentUserG,
+  getCurrentUserP,
   userLeave,
   userLeaveG,
   getRoomUsers,
   getRoomUsersG,
 } = require('./utils/users');
-
+var pri=''
+var pri2=''
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
 app.get('/private', (req, res)=>{
-  app.render('private.html')
+  app.render('/private')
 })
 
 // Set static folder
@@ -64,6 +66,22 @@ io.on('connection', socket => {
     });
   });
 
+  socket.on('priInitiate', userName => {
+    const user = getCurrentUser(socket.id);
+    const userP = getCurrentUserP(userName);
+    const msg = "Private Chat initiated"
+    console.log(userP)
+    if(!userP){
+      socket.emit("wrongUser", "No such user exist")
+    }
+    else{
+      pri=userP.id
+      pri2=socket.id
+      io.to(userP.id).emit('messageIni', formatMessage(user.username, msg));
+      socket.emit('messageIni', formatMessage(userP.username, msg));
+    }
+  });
+
   // Listen for chatMessage
   socket.on('chatMessage', msg => {
     const user = getCurrentUser(socket.id);
@@ -86,6 +104,31 @@ io.on('connection', socket => {
     const user = getCurrentUserG(socket.id);
 
     io.to(user.room).emit('messageGI', formatMessage(user.username, msg));
+  });
+
+  socket.on('chatMessageP', msg => {
+    console.log(pri, msg)
+    const user = getCurrentUserG(socket.id);
+    if(user.id === pri){
+    io.to(pri2).emit('messageP', formatMessage(user.username, msg));
+    io.to(user.id).emit('messageP', formatMessage(user.username, msg));
+    }
+    else if(user.id === pri2){
+      io.to(pri).emit('messageP', formatMessage(user.username, msg));
+      io.to(user.id).emit('messageP', formatMessage(user.username, msg));
+      }
+  });
+
+  socket.on('chatMessagePI',msg => {
+    const user = getCurrentUserG(socket.id);
+    if(user.id === pri){
+      io.to(pri2).emit('messagePI', formatMessage(user.username, msg));
+      io.to(user.id).emit('messagePI', formatMessage(user.username, msg));
+      }
+      else if(user.id === pri2){
+        io.to(pri).emit('messagePI', formatMessage(user.username, msg));
+        io.to(user.id).emit('messagePI', formatMessage(user.username, msg));
+        }
   });
 
   // Runs when client disconnects
@@ -112,7 +155,7 @@ io.on('connection', socket => {
       );
 
       // Send users and room info
-      io.to(userG.room).emit('roomUsers', {
+      io.to(userG.room).emit('roomUsersG', {
         room: userG.room,
         users: getRoomUsersG(userG.room)
       });
